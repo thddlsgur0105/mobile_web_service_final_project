@@ -1,0 +1,122 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.photoviewer"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="24"
+8-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml
+9        android:targetSdkVersion="33" />
+9-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:5:5-67
+11-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:5:22-64
+12    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+12-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:6:5-81
+12-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:6:22-78
+13    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+13-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:7:5-80
+13-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:7:22-77
+14    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+14-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:8:5-82
+14-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:8:22-79
+15
+16    <permission
+16-->[androidx.core:core:1.10.1] C:\Users\thddl\.gradle\caches\transforms-3\b62038f5d03f74fc162fce5262a57788\transformed\core-1.10.1\AndroidManifest.xml:22:5-24:47
+17        android:name="com.example.photoviewer.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+17-->[androidx.core:core:1.10.1] C:\Users\thddl\.gradle\caches\transforms-3\b62038f5d03f74fc162fce5262a57788\transformed\core-1.10.1\AndroidManifest.xml:23:9-81
+18        android:protectionLevel="signature" />
+18-->[androidx.core:core:1.10.1] C:\Users\thddl\.gradle\caches\transforms-3\b62038f5d03f74fc162fce5262a57788\transformed\core-1.10.1\AndroidManifest.xml:24:9-44
+19
+20    <uses-permission android:name="com.example.photoviewer.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+20-->[androidx.core:core:1.10.1] C:\Users\thddl\.gradle\caches\transforms-3\b62038f5d03f74fc162fce5262a57788\transformed\core-1.10.1\AndroidManifest.xml:26:5-97
+20-->[androidx.core:core:1.10.1] C:\Users\thddl\.gradle\caches\transforms-3\b62038f5d03f74fc162fce5262a57788\transformed\core-1.10.1\AndroidManifest.xml:26:22-94
+21
+22    <application
+22-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:10:5-40:19
+23        android:allowBackup="true"
+23-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:12:9-35
+24        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+24-->[androidx.core:core:1.10.1] C:\Users\thddl\.gradle\caches\transforms-3\b62038f5d03f74fc162fce5262a57788\transformed\core-1.10.1\AndroidManifest.xml:28:18-86
+25        android:debuggable="true"
+26        android:extractNativeLibs="false"
+27        android:label="PhotoViewer"
+27-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:13:9-36
+28        android:networkSecurityConfig="@xml/network_security_config"
+28-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:15:9-69
+29        android:supportsRtl="true"
+29-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:14:9-35
+30        android:testOnly="true"
+31        android:theme="@style/AppTheme"
+31-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:16:9-40
+32        android:usesCleartextTraffic="true" >
+32-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:11:9-44
+33        <activity
+33-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:17:9-24:20
+34            android:name="com.example.photoviewer.MainActivity"
+34-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:18:13-41
+35            android:exported="true" >
+35-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:19:13-36
+36            <intent-filter>
+36-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:20:13-23:29
+37                <action android:name="android.intent.action.MAIN" />
+37-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:21:17-69
+37-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:21:25-66
+38
+39                <category android:name="android.intent.category.LAUNCHER" />
+39-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:22:17-77
+39-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:22:27-74
+40            </intent-filter>
+41        </activity>
+42        <activity
+42-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:26:9-29:47
+43            android:name="com.example.photoviewer.ImageDetailActivity"
+43-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:27:13-48
+44            android:exported="false"
+44-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:28:13-37
+45            android:theme="@style/AppTheme" />
+45-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:29:13-44
+46
+47        <provider
+47-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:31:9-39:20
+48            android:name="androidx.core.content.FileProvider"
+48-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:32:13-62
+49            android:authorities="com.example.photoviewer.fileprovider"
+49-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:33:13-71
+50            android:exported="false"
+50-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:34:13-37
+51            android:grantUriPermissions="true" >
+51-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:35:13-47
+52            <meta-data
+52-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:36:13-38:54
+53                android:name="android.support.FILE_PROVIDER_PATHS"
+53-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:37:17-67
+54                android:resource="@xml/file_paths" />
+54-->C:\Users\thddl\PhotoBlog\PhotoViewer\app\src\main\AndroidManifest.xml:38:17-51
+55        </provider>
+56        <provider
+56-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thddl\.gradle\caches\transforms-3\44cfbf2e2a423f4589913a5940ed7519\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+57            android:name="androidx.startup.InitializationProvider"
+57-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thddl\.gradle\caches\transforms-3\44cfbf2e2a423f4589913a5940ed7519\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:25:13-67
+58            android:authorities="com.example.photoviewer.androidx-startup"
+58-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thddl\.gradle\caches\transforms-3\44cfbf2e2a423f4589913a5940ed7519\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:26:13-68
+59            android:exported="false" >
+59-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thddl\.gradle\caches\transforms-3\44cfbf2e2a423f4589913a5940ed7519\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:27:13-37
+60            <meta-data
+60-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thddl\.gradle\caches\transforms-3\44cfbf2e2a423f4589913a5940ed7519\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+61                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+61-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thddl\.gradle\caches\transforms-3\44cfbf2e2a423f4589913a5940ed7519\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:30:17-75
+62                android:value="androidx.startup" />
+62-->[androidx.emoji2:emoji2:1.2.0] C:\Users\thddl\.gradle\caches\transforms-3\44cfbf2e2a423f4589913a5940ed7519\transformed\jetified-emoji2-1.2.0\AndroidManifest.xml:31:17-49
+63            <meta-data
+63-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\thddl\.gradle\caches\transforms-3\3bb1114a2f6efba77dda8a9cd707b2b3\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
+64                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+64-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\thddl\.gradle\caches\transforms-3\3bb1114a2f6efba77dda8a9cd707b2b3\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
+65                android:value="androidx.startup" />
+65-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\thddl\.gradle\caches\transforms-3\3bb1114a2f6efba77dda8a9cd707b2b3\transformed\jetified-lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
+66        </provider>
+67    </application>
+68
+69</manifest>

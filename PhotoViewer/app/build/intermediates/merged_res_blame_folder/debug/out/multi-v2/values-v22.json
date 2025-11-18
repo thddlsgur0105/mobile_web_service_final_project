@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.photoviewer.app-mergeDebugResources-29:/values-v22/values-v22.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\thddl\\.gradle\\caches\\transforms-3\\f84b33a9f601e3b7d600a67f9c68c4d6\\transformed\\appcompat-1.6.1\\res\\values-v22\\values-v22.xml",
+                    "from": {
+                        "startLines": "2,3,4,9",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,130,217,487",
+                        "endLines": "2,3,8,13",
+                        "endColumns": "74,86,12,12",
+                        "endOffsets": "125,212,482,764"
+                    }
+                }
+            ]
+        }
+    ]
+}

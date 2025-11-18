@@ -1,0 +1,6 @@
+GET /api_root/Post/ HTTP/1.1
+Host: 10.0.2.2:8000
+Authorization: Token bf46b8f9337d1d27b4ef2511514c798be1a954b8
+User-Agent: Python-Client
+Connection: close
+

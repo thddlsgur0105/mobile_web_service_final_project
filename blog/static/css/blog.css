@@ -1,0 +1,105 @@
+:root {
+    --pv-bg: #0b0d10;
+    --pv-surface: #11141a;
+    --pv-card: #161b22;
+    --pv-border: #222a36;
+    --pv-text: #e6edf3;
+    --pv-text-dim: #9fb0c3;
+    --pv-primary: #4aa3ff;
+    --pv-primary-weak: rgba(74,163,255,0.15);
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--pv-bg);
+    color: var(--pv-text);
+    font-family: 'Noto Sans KR', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.pv-container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.pv-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(180deg, rgba(11,13,16,0.9), rgba(11,13,16,0.6));
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--pv-border);
+}
+
+.pv-navbar .pv-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.pv-brand {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.pv-navlinks a {
+    color: var(--pv-text);
+    opacity: 0.9;
+    text-decoration: none;
+    margin-left: 18px;
+}
+
+.pv-navlinks a:hover { opacity: 1; color: var(--pv-primary); }
+
+.pv-main { padding: 32px 0 48px; }
+
+.post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.post-card {
+    background: linear-gradient(180deg, var(--pv-card), var(--pv-surface));
+    border: 1px solid var(--pv-border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.post-card:hover {
+    transform: translateY(-2px);
+    border-color: #2a3444;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+}
+
+.post-media {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    background: #0f1319;
+}
+
+.post-body { padding: 14px 14px 16px; }
+
+.post-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 6px;
+}
+
+.post-date { font-size: .85rem; color: var(--pv-text-dim); margin-bottom: 8px; }
+
+.post-text { color: var(--pv-text-dim); font-size: .95rem; line-height: 1.5; }
+
+.blog-image-list { width: 100%; height: auto; border-radius: 10px; object-fit: cover; }
+
+.pv-footer {
+    border-top: 1px solid var(--pv-border);
+    background: var(--pv-surface);
+    padding: 18px 0;
+    color: var(--pv-text-dim);
+}

@@ -1,0 +1,19 @@
+{% extends 'blog/base.html' %}
+{% block content %}
+<div class="post-grid">
+    {% for post in posts %}
+    <article class="post-card">
+        {% if post.image %}
+        <img src="{{ post.image.url }}" class="post-media" alt="{{ post.title }}">
+        {% endif %}
+        <div class="post-body">
+            <div class="post-date">{{ post.published_date }}</div>
+            <h2 class="post-title">{{ post.title }}</h2>
+            {% if post.text %}
+            <p class="post-text">{{ post.text|truncatechars:140 }}</p>
+            {% endif %}
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% endblock %}
