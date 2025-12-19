@@ -1,0 +1,25 @@
+# Django PhotoBlog Server Requirements
+# Python 3.8+ recommended
+
+# Django Framework
+Django>=5.2.7
+djangorestframework>=3.14.0
+
+# Database
+# SQLite3 is included in Python by default
+
+# Image Processing (for Wellbeing Analyzer)
+opencv-python>=4.1.1
+numpy>=1.23.5
+Pillow>=10.3.0
+
+# Deep Learning (for Wellbeing Analyzer)
+torch>=1.8.0
+torchvision>=0.9.0
+deepface>=0.0.79
+
+# HTTP Requests
+requests>=2.32.2
+
+# Utilities
+python-dateutil>=2.8.2

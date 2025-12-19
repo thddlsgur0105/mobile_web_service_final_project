@@ -20,17 +20,20 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
-from blog.views import PostViewSet
+from blog.views import PostViewSet, WellbeingLogViewSet, register_user, logout_api
 from rest_framework.authtoken.views import obtain_auth_token
 
 router = routers.DefaultRouter()
 router.register(r'Post', PostViewSet)
+router.register(r'WellbeingLog', WellbeingLogViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("blog.urls")),  # blog 앱의 URL들을 포함
     path('api_root/', include(router.urls)),
-    path('api-token-auth/', obtain_auth_token),
+    path('api_root/register/', register_user, name='api_register'),  # 회원가입 API
+    path('api_root/logout/', logout_api, name='api_logout'),  # 로그아웃 API
+    path('api-token-auth/', obtain_auth_token, name='api_login'),  # 로그인 API
 ]
 
 

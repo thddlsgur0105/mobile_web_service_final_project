@@ -46,7 +46,11 @@ INSTALLED_APPS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.IsAuthenticated',  # 인증 필수
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_RENDERER_CLASSES': [
         'blog.renderers.UTF8JSONRenderer',
@@ -126,27 +130,27 @@ LANGUAGE_CODE = "ko"
 USE_I18N = True
 
 USE_TZ = True
+TIME_ZONE = 'Asia/Seoul'
 DEFAULT_CHARSET = 'utf-8'
 
-DEFAULT_CHARSET = 'utf-8'
+# 로그인 설정
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login/'
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-TIME_ZOME = 'Asia/Seoul'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 ALLOWED_HOSTS = ['thddlsgur01050331.pythonanywhere.com', 'localhost', '127.0.0.1', 'pythonanywhere.com', '10.0.2.2', '0.0.0.0']
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')

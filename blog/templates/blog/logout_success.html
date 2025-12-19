@@ -1,0 +1,77 @@
+{% extends 'blog/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-check-circle text-success" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 2.664 5.286a.75.75 0 0 1 1.072-1.04l3.992 4.99a.75.75 0 0 1-.01 1.05l-4.25 4.25a.75.75 0 0 1-1.06-1.06l3.75-3.75z"/>
+                        </svg>
+                    </div>
+                    
+                    <h2 class="card-title mb-4">로그아웃 완료</h2>
+                    <p class="text-muted mb-4">웹 브라우저에서 로그아웃되었습니다.</p>
+                    
+                    <div class="alert alert-info text-start" role="alert">
+                        <h5 class="alert-heading">⚠️ Edge System 인증 정보 삭제 필요</h5>
+                        <p class="mb-2">Edge System(wellbeing_analyzer.py)에서 사용하는 로그인 정보도 삭제해야 합니다.</p>
+                        <hr>
+                        <p class="mb-2"><strong>방법 1: 수동 삭제 (권장)</strong></p>
+                        <p class="mb-0">프로젝트 루트 디렉토리의 <code>auth_info.json</code> 파일을 삭제하세요.</p>
+                        <p class="mb-3 mt-2">
+                            <code>auth_info.json</code> 파일 위치: <br>
+                            <small class="text-muted">프로젝트 루트 디렉토리</small>
+                        </p>
+                        
+                        <p class="mb-2"><strong>방법 2: Edge System에서 자동 삭제</strong></p>
+                        <p class="mb-0">다음에 <code>wellbeing_analyzer.py</code>를 실행하면 저장된 토큰이 만료되어 자동으로 재로그인을 요청합니다.</p>
+                        
+                        <p class="mb-0 mt-3"><strong>방법 3: API 호출로 토큰 삭제</strong></p>
+                        <p class="mb-0">Edge System에서 로그아웃 API를 호출하여 서버의 토큰을 삭제할 수 있습니다.</p>
+                        <code class="d-block mt-2 p-2 bg-light">POST /api_root/logout/</code>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'login' %}" class="btn btn-primary">다시 로그인</a>
+                        <a href="{% url 'post_list' %}" class="btn btn-outline-secondary">홈으로</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+.card-body {
+    background: #fff;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 12px;
+    font-weight: 500;
+    border-radius: 5px;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+code {
+    background-color: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+</style>
+{% endblock %}
+

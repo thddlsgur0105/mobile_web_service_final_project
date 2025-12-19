@@ -161,6 +161,9 @@ public class MainActivity extends AppCompatActivity {
         
         // 🔹 URL 메모장 초기화
         initUrlBookmark();
+
+        // 🔹 웰빙 요약 정보 불러오기
+        loadWellbeingSummary();
     }
     
     // 🔹 상단 영역 접기/펼치기 초기화
@@ -344,6 +347,96 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("PhotoViewer", "URL 목록 로드 오류: " + e.getMessage());
             urlList.clear();
+        }
+    }
+
+    // 🔹 웰빙 요약 정보 로드
+    private void loadWellbeingSummary() {
+        String summaryUrl = siteUrl + "/api_root/WellbeingLog/summary/";
+        new WellbeingSummaryTask().execute(summaryUrl);
+    }
+
+    // 🔹 웰빙 요약 정보를 가져오는 AsyncTask
+    private class WellbeingSummaryTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            String urlString = urls[0];
+            HttpURLConnection conn = null;
+            try {
+                URL url = new URL(urlString);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(15000);
+                conn.setRequestProperty("Accept", "application/json");
+
+                int responseCode = conn.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    reader.close();
+
+                    String jsonString = sb.toString();
+                    if (jsonString.isEmpty()) {
+                        return "웰빙 데이터가 아직 없습니다.";
+                    }
+
+                    JSONObject json = new JSONObject(jsonString);
+                    JSONObject today = json.optJSONObject("today");
+                    JSONObject week = json.optJSONObject("last_7_days");
+
+                    StringBuilder summary = new StringBuilder();
+                    summary.append("오늘의 웰빙 요약\n");
+
+                    if (today != null && today.optInt("count", 0) > 0) {
+                        String todayEmotion = today.optString("dominant_emotion", "알 수 없음");
+                        double todayMove = today.optDouble("avg_movement", 0.0);
+                        summary.append("- 주요 감정: ").append(todayEmotion).append("\n");
+                        summary.append("- 활동성: ").append(String.format("%.1f", todayMove)).append("\n");
+                    } else {
+                        summary.append("- 수집된 데이터가 없습니다.\n");
+                    }
+
+                    if (week != null && week.optInt("count", 0) > 0) {
+                        String weekEmotion = week.optString("dominant_emotion", "알 수 없음");
+                        double weekMove = week.optDouble("avg_movement", 0.0);
+                        summary.append("\n최근 7일 요약\n");
+                        summary.append("- 자주 나타난 감정: ").append(weekEmotion).append("\n");
+                        summary.append("- 평균 활동성: ").append(String.format("%.1f", weekMove));
+                    }
+
+                    return summary.toString();
+                } else {
+                    return "웰빙 정보를 불러오지 못했습니다. (" + responseCode + ")";
+                }
+            } catch (Exception e) {
+                Log.e("PhotoViewer", "Wellbeing summary error: " + e.getMessage(), e);
+                return "웰빙 정보를 불러오는 중 오류가 발생했습니다.";
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // 기존 안내 문구 아래에 웰빙 요약을 함께 표시
+            if (textView != null && result != null && !result.isEmpty()) {
+                String currentText = textView.getText() != null ? textView.getText().toString() : "";
+                String combined;
+                if (currentText.isEmpty()) {
+                    combined = result;
+                } else {
+                    combined = currentText + "\n\n" + result;
+                }
+                textView.setText(combined);
+            }
         }
     }
 

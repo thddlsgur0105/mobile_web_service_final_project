@@ -1,0 +1,116 @@
+{% extends 'blog/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4">PhotoBlog 회원가입</h2>
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        <strong>회원가입 실패!</strong>
+                        <ul class="mb-0 mt-2">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" action="{% url 'register' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">사용자명</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="id_username" 
+                                   name="username" 
+                                   required 
+                                   autofocus
+                                   placeholder="사용자명을 입력하세요">
+                            <small class="form-text text-muted">150자 이하, 영문, 숫자, @/./+/-/_ 만 사용 가능</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">이메일 (선택사항)</label>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="id_email" 
+                                   name="email" 
+                                   placeholder="이메일을 입력하세요">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label">비밀번호</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="id_password1" 
+                                   name="password1" 
+                                   required
+                                   placeholder="비밀번호를 입력하세요">
+                            <small class="form-text text-muted">최소 8자 이상</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="id_password2" class="form-label">비밀번호 확인</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="id_password2" 
+                                   name="password2" 
+                                   required
+                                   placeholder="비밀번호를 다시 입력하세요">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 mb-3">회원가입</button>
+                    </form>
+                    
+                    <div class="text-center">
+                        <small class="text-muted">
+                            이미 계정이 있으신가요? 
+                            <a href="{% url 'login' %}">로그인</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+.card-body {
+    background: #fff;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 12px;
+    font-weight: 500;
+    border-radius: 5px;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.form-control {
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+</style>
+{% endblock %}
+

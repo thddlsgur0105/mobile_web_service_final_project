@@ -21,16 +21,17 @@ weights/
 *.jpg
 *.png
 
-deepface_env/
 venv/
 .venv/
 
 _polars_runtime_32/
 
-deepface_env/
 *.pyd
 *.dll
 *.lib
 *.so
 *.zip
 *.exe
+
+# Authentication info (contains sensitive tokens)
+auth_info.json
