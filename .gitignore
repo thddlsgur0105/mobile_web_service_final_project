@@ -35,3 +35,6 @@ _polars_runtime_32/
 
 # Authentication info (contains sensitive tokens)
 auth_info.json
+
+# Environment variables
+.env
