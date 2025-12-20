@@ -11,6 +11,21 @@ import requests
 import torch
 from deepface import DeepFace
 
+# MediaPipe import (선택적)
+MEDIAPIPE_AVAILABLE = False
+mp = None
+
+try:
+    import mediapipe as mp
+    from mediapipe.tasks import python
+    from mediapipe.tasks.python import vision
+    MEDIAPIPE_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ MediaPipe를 import할 수 없습니다: {e}")
+    print("   설치 방법: pip install mediapipe")
+except Exception as e:
+    print(f"⚠️ MediaPipe 초기화 오류: {e}")
+
 
 # =========================
 # 설정
@@ -106,6 +121,262 @@ def analyze_emotion(face_img):
     except Exception as e:
         print("Emotion analyze error:", e)
         return None
+
+
+def estimate_pose(pose_landmarks, image_height, image_width):
+    """
+    MediaPipe Pose를 사용하여 자세를 추정합니다.
+    MediaPipe 0.10+ tasks API 사용
+    Returns: 'sitting', 'standing', 'bending', or None
+    """
+    if not pose_landmarks or len(pose_landmarks) == 0:
+        return None
+    
+    try:
+        # 주요 랜드마크 인덱스
+        LEFT_SHOULDER = 11
+        RIGHT_SHOULDER = 12
+        LEFT_HIP = 23
+        RIGHT_HIP = 24
+        LEFT_KNEE = 25
+        RIGHT_KNEE = 26
+        LEFT_ANKLE = 27
+        RIGHT_ANKLE = 28
+        
+        # 랜드마크 좌표 추출 (tasks API는 리스트 형태)
+        landmarks = pose_landmarks
+        
+        def get_landmark(idx):
+            if idx >= len(landmarks):
+                return None
+            lm = landmarks[idx]
+            # tasks API는 x, y, z 속성을 가짐
+            return (lm.x * image_width, lm.y * image_height)
+        
+        # 어깨와 엉덩이 중심점
+        left_shoulder = get_landmark(LEFT_SHOULDER)
+        right_shoulder = get_landmark(RIGHT_SHOULDER)
+        left_hip = get_landmark(LEFT_HIP)
+        right_hip = get_landmark(RIGHT_HIP)
+        left_knee = get_landmark(LEFT_KNEE)
+        right_knee = get_landmark(RIGHT_KNEE)
+        left_ankle = get_landmark(LEFT_ANKLE)
+        right_ankle = get_landmark(RIGHT_ANKLE)
+        
+        # 필수 랜드마크 확인
+        if not all([left_shoulder, right_shoulder, left_hip, right_hip, 
+                   left_knee, right_knee, left_ankle, right_ankle]):
+            return None
+        
+        shoulder_center_y = (left_shoulder[1] + right_shoulder[1]) / 2
+        hip_center_y = (left_hip[1] + right_hip[1]) / 2
+        knee_center_y = (left_knee[1] + right_knee[1]) / 2
+        ankle_center_y = (left_ankle[1] + right_ankle[1]) / 2
+        
+        # 어깨와 엉덩이 사이 거리
+        torso_height = abs(hip_center_y - shoulder_center_y)
+        
+        # 발목이 무릎보다 아래에 있는지 확인 (서 있는지)
+        is_standing = ankle_center_y > knee_center_y
+        
+        # 무릎과 발목의 높이 차이 (다리가 펴져 있는지)
+        leg_extended = (ankle_center_y - knee_center_y) > (knee_center_y - hip_center_y) * 0.5
+        
+        # 상체가 앞으로 기울어져 있는지 (숙여 있는지)
+        # 어깨와 엉덩이의 수직 거리와 수평 거리를 비교
+        shoulder_hip_vertical = abs(hip_center_y - shoulder_center_y)
+        shoulder_hip_horizontal = abs((left_hip[0] + right_hip[0]) / 2 - (left_shoulder[0] + right_shoulder[0]) / 2)
+        
+        # 각도 계산 (수평 거리가 너무 작으면 나누기 오류 방지)
+        if shoulder_hip_horizontal < 1:
+            shoulder_hip_horizontal = 1
+        
+        # 상체 기울기 각도 (0도 = 완전히 똑바름, 90도 = 완전히 수평)
+        tilt_angle = np.arctan2(shoulder_hip_vertical, shoulder_hip_horizontal) * 180 / np.pi
+        
+        # 상체가 앞으로 기울어졌는지 (어깨가 엉덩이보다 앞에 있는지)
+        shoulder_forward = (left_shoulder[0] + right_shoulder[0]) / 2 < (left_hip[0] + right_hip[0]) / 2
+        
+        # 자세 판단
+        if not is_standing or not leg_extended:
+            # 다리가 펴져 있지 않거나 발목이 무릎 위에 있으면 앉아 있음
+            return 'sitting'
+        elif tilt_angle < 60 and shoulder_forward:
+            # 상체가 기울어지고 앞으로 숙여졌으면 bending
+            # (60도 미만이면 상체가 많이 기울어짐)
+            return 'bending'
+        else:
+            # 그 외는 서 있음
+            return 'standing'
+    except Exception as e:
+        print(f"Pose estimation error: {e}")
+        return None
+
+
+def estimate_head_pose(face_landmarks, image_width, image_height):
+    """
+    MediaPipe Face Mesh를 사용하여 Head Pose를 추정합니다.
+    MediaPipe 0.10+ tasks API 사용
+    Returns: {"pitch": float, "yaw": float, "roll": float} or None
+    """
+    if not face_landmarks or len(face_landmarks) == 0:
+        return None
+    
+    try:
+        # 얼굴 랜드마크 인덱스 (MediaPipe Face Mesh)
+        # 코 끝, 턱, 왼쪽 귀, 오른쪽 귀, 왼쪽 눈, 오른쪽 눈
+        NOSE_TIP = 1
+        CHIN = 175
+        LEFT_EAR = 234
+        RIGHT_EAR = 454
+        LEFT_EYE = 33
+        RIGHT_EYE = 263
+        
+        # tasks API는 리스트 형태
+        landmarks = face_landmarks
+        
+        def get_landmark_3d(idx):
+            if idx >= len(landmarks):
+                return None
+            lm = landmarks[idx]
+            # tasks API는 x, y, z 속성을 가짐
+            return np.array([lm.x * image_width, lm.y * image_height, lm.z * image_width])
+        
+        # 3D 좌표 추출
+        nose_tip = get_landmark_3d(NOSE_TIP)
+        chin = get_landmark_3d(CHIN)
+        left_ear = get_landmark_3d(LEFT_EAR)
+        right_ear = get_landmark_3d(RIGHT_EAR)
+        left_eye = get_landmark_3d(LEFT_EYE)
+        right_eye = get_landmark_3d(RIGHT_EYE)
+        
+        # 얼굴 중심선 (코-턱)
+        face_center = (nose_tip + chin) / 2
+        
+        # 좌우 귀 중심
+        ear_center = (left_ear + right_ear) / 2
+        
+        # 눈 중심
+        eye_center = (left_eye + right_eye) / 2
+        
+        # Pitch (상하 움직임): 얼굴 중심선과 수직선의 각도
+        face_vector = chin - nose_tip
+        pitch = np.arctan2(face_vector[1], face_vector[2]) * 180 / np.pi
+        
+        # Yaw (좌우 움직임): 귀 중심선과 수평선의 각도
+        ear_vector = right_ear - left_ear
+        yaw = np.arctan2(ear_vector[0], ear_vector[2]) * 180 / np.pi
+        
+        # Roll (회전): 눈 중심선과 수평선의 각도
+        eye_vector = right_eye - left_eye
+        roll = np.arctan2(eye_vector[1], eye_vector[0]) * 180 / np.pi
+        
+        return {
+            "pitch": float(pitch),
+            "yaw": float(yaw),
+            "roll": float(roll)
+        }
+    except Exception as e:
+        print(f"Head pose estimation error: {e}")
+        return None
+
+
+def analyze_eye_blink(face_landmarks, prev_eye_state, frame_count):
+    """
+    MediaPipe Face Mesh를 사용하여 눈 깜빡임을 감지하고 집중도/피로도를 계산합니다.
+    MediaPipe 0.10+ tasks API 사용
+    Returns: (blink_count, focus_level, fatigue_level, new_eye_state)
+    """
+    if not face_landmarks or len(face_landmarks) == 0:
+        return 0, 0.0, 0.0, prev_eye_state
+    
+    try:
+        # 눈 랜드마크 인덱스 (MediaPipe Face Mesh)
+        # 왼쪽 눈: 상단 159, 하단 145, 좌측 33, 우측 133
+        # 오른쪽 눈: 상단 386, 하단 374, 좌측 362, 우측 263
+        LEFT_EYE_TOP = 159
+        LEFT_EYE_BOTTOM = 145
+        LEFT_EYE_LEFT = 33
+        LEFT_EYE_RIGHT = 133
+        
+        RIGHT_EYE_TOP = 386
+        RIGHT_EYE_BOTTOM = 374
+        RIGHT_EYE_LEFT = 362
+        RIGHT_EYE_RIGHT = 263
+        
+        # tasks API는 리스트 형태
+        landmarks = face_landmarks
+        
+        def get_landmark(idx):
+            if idx >= len(landmarks):
+                return None
+            lm = landmarks[idx]
+            # tasks API는 x, y 속성을 가짐
+            return (lm.x, lm.y)
+        
+        # 왼쪽 눈 좌표
+        left_eye_top = get_landmark(LEFT_EYE_TOP)
+        left_eye_bottom = get_landmark(LEFT_EYE_BOTTOM)
+        left_eye_left = get_landmark(LEFT_EYE_LEFT)
+        left_eye_right = get_landmark(LEFT_EYE_RIGHT)
+        
+        # 오른쪽 눈 좌표
+        right_eye_top = get_landmark(RIGHT_EYE_TOP)
+        right_eye_bottom = get_landmark(RIGHT_EYE_BOTTOM)
+        right_eye_left = get_landmark(RIGHT_EYE_LEFT)
+        right_eye_right = get_landmark(RIGHT_EYE_RIGHT)
+        
+        # 눈의 높이와 너비 계산
+        left_eye_height = abs(left_eye_top[1] - left_eye_bottom[1])
+        left_eye_width = abs(left_eye_right[0] - left_eye_left[0])
+        right_eye_height = abs(right_eye_top[1] - right_eye_bottom[1])
+        right_eye_width = abs(right_eye_right[0] - right_eye_left[0])
+        
+        # 눈 종횡비 (EAR: Eye Aspect Ratio)
+        left_ear = left_eye_height / (left_eye_width + 1e-6)
+        right_ear = right_eye_height / (right_eye_width + 1e-6)
+        avg_ear = (left_ear + right_ear) / 2
+        
+        # 눈 깜빡임 감지 (EAR이 임계값 이하일 때)
+        EAR_THRESHOLD = 0.25
+        is_blinking = avg_ear < EAR_THRESHOLD
+        
+        # 이전 상태와 비교하여 깜빡임 카운트
+        blink_count = 0
+        if prev_eye_state is not None:
+            if not prev_eye_state['was_blinking'] and is_blinking:
+                blink_count = 1
+        
+        # 집중도 계산 (눈이 열려있고 안정적일 때 높음)
+        # EAR이 정상 범위(0.25~0.35)에 있고 안정적이면 집중도 높음
+        if 0.25 <= avg_ear <= 0.35:
+            focus_level = min(1.0, avg_ear / 0.3)
+        else:
+            focus_level = max(0.0, 1.0 - abs(avg_ear - 0.3) * 2)
+        
+        # 피로도 계산 (눈 깜빡임 빈도가 낮거나 눈이 자주 감기면 피로도 높음)
+        # 프레임당 깜빡임 빈도가 낮으면 피로도 증가
+        if prev_eye_state:
+            time_since_last_blink = frame_count - prev_eye_state.get('last_blink_frame', 0)
+            # 3초 이상 깜빡임이 없으면 피로도 증가
+            if time_since_last_blink > 90:  # 약 3초 (30fps 기준)
+                fatigue_level = min(1.0, (time_since_last_blink - 90) / 180)
+            else:
+                fatigue_level = max(0.0, 1.0 - time_since_last_blink / 90)
+        else:
+            fatigue_level = 0.0
+        
+        # 현재 상태 저장
+        current_state = {
+            'was_blinking': is_blinking,
+            'last_blink_frame': frame_count if is_blinking else prev_eye_state.get('last_blink_frame', 0) if prev_eye_state else 0,
+            'avg_ear': avg_ear
+        }
+        
+        return blink_count, focus_level, fatigue_level, current_state
+    except Exception as e:
+        print(f"Eye blink analysis error: {e}")
+        return 0, 0.0, 0.0, None
 
 
 def save_auth_info(username, token):
@@ -279,9 +550,14 @@ def get_auth_token():
         return None
 
 
-def send_summary_to_server(emotion_window, movement_window):
+def send_summary_to_server(emotion_window, movement_window, pose_window, head_pose_window, 
+                           blink_count_window, focus_window, fatigue_window, frame=None):
     """
-    최근 윈도우의 감정/활동성을 집계해 Django 서버로 전송합니다.
+    최근 윈도우의 감정/활동성/자세/고개/눈 상태를 집계해 Django 서버로 전송합니다.
+    이미지도 함께 전송하여 데이터베이스에 저장합니다.
+    
+    Args:
+        frame: OpenCV 이미지 (numpy array), None이면 이미지 없이 전송
     """
     if not emotion_window:
         return
@@ -292,30 +568,90 @@ def send_summary_to_server(emotion_window, movement_window):
     dominant_ratio = dominant_count / total if total > 0 else 0.0
 
     avg_movement = float(np.mean(movement_window)) if movement_window else 0.0
-
-    payload = {
-        "dominant_emotion": dominant_emotion,
-        "dominant_emotion_ratio": dominant_ratio,
-        "emotion_counts": dict(emo_counts),
-        "avg_movement": avg_movement,
-        "timestamp": time.time(),
-    }
-
-    headers = {"Content-Type": "application/json"}
     
+    # 자세 집계 (가장 빈도 높은 자세)
+    dominant_pose = None
+    if pose_window:
+        pose_counts = Counter(pose_window)
+        dominant_pose = pose_counts.most_common(1)[0][0] if pose_counts else None
+    
+    # Head Pose 평균 계산
+    avg_head_pose = None
+    if head_pose_window:
+        valid_poses = [p for p in head_pose_window if p is not None]
+        if valid_poses:
+            avg_pitch = np.mean([p.get('pitch', 0) for p in valid_poses])
+            avg_yaw = np.mean([p.get('yaw', 0) for p in valid_poses])
+            avg_roll = np.mean([p.get('roll', 0) for p in valid_poses])
+            avg_head_pose = {
+                "pitch": float(avg_pitch),
+                "yaw": float(avg_yaw),
+                "roll": float(avg_roll)
+            }
+    
+    # 눈 깜빡임 총합
+    total_blinks = sum(blink_count_window) if blink_count_window else 0
+    
+    # 집중도와 피로도 평균
+    avg_focus = float(np.mean(focus_window)) if focus_window else 0.0
+    avg_fatigue = float(np.mean(fatigue_window)) if fatigue_window else 0.0
+
     # 저장된 토큰 사용
     token = get_auth_token()
+    headers = {}
     if token:
         headers["Authorization"] = f"Token {token}"
     else:
         print("⚠️ 인증 토큰이 없어 요청이 실패할 수 있습니다.")
 
     try:
-        resp = requests.post(
-            WELLBEING_API_URL, json=payload, headers=headers, timeout=5
-        )
+        # 이미지가 있으면 multipart/form-data로 전송
+        if frame is not None:
+            # 이미지를 JPEG 형식으로 인코딩
+            _, img_encoded = cv2.imencode('.jpg', frame)
+            img_bytes = img_encoded.tobytes()
+            
+            # multipart/form-data로 전송
+            files = {
+                'image': ('wellbeing_image.jpg', BytesIO(img_bytes), 'image/jpeg')
+            }
+            
+            data = {
+                "dominant_emotion": dominant_emotion,
+                "dominant_emotion_ratio": str(dominant_ratio),
+                "emotion_counts": json.dumps(dict(emo_counts), ensure_ascii=False),
+                "avg_movement": str(avg_movement),
+                "pose": dominant_pose or "",
+                "head_pose": json.dumps(avg_head_pose, ensure_ascii=False) if avg_head_pose else "{}",
+                "eye_blink_count": str(total_blinks),
+                "focus_level": str(avg_focus),
+                "fatigue_level": str(avg_fatigue),
+            }
+            
+            resp = requests.post(
+                WELLBEING_API_URL, data=data, files=files, headers=headers, timeout=10
+            )
+        else:
+            # 이미지가 없으면 JSON으로 전송 (기존 방식)
+            payload = {
+                "dominant_emotion": dominant_emotion,
+                "dominant_emotion_ratio": dominant_ratio,
+                "emotion_counts": dict(emo_counts),
+                "avg_movement": avg_movement,
+                "pose": dominant_pose,
+                "head_pose": avg_head_pose,
+                "eye_blink_count": total_blinks,
+                "focus_level": avg_focus,
+                "fatigue_level": avg_fatigue,
+                "timestamp": time.time(),
+            }
+            headers["Content-Type"] = "application/json"
+            resp = requests.post(
+                WELLBEING_API_URL, json=payload, headers=headers, timeout=5
+            )
+        
         if resp.status_code in [200, 201]:
-            print("✅ WellbeingLog 전송 성공")
+            print("✅ WellbeingLog 전송 성공 (이미지 포함)" if frame is not None else "✅ WellbeingLog 전송 성공")
         else:
             print(f"⚠️ WellbeingLog 전송 실패 ({resp.status_code}): {resp.text[:200]}")
     except Exception as e:
@@ -392,6 +728,7 @@ def send_post_to_server(frame, detected_objects, title=None, text=None):
 
 
 def main():
+    global MEDIAPIPE_AVAILABLE
     # 로그인 확인
     print("="*60)
     print("  사용자 인증 확인")
@@ -448,6 +785,69 @@ def main():
     print()
     
     yolo = load_yolo_model()
+    
+    # MediaPipe 초기화 (tasks API)
+    pose_landmarker = None
+    face_landmarker = None
+    
+    if MEDIAPIPE_AVAILABLE:
+        try:
+            print("MediaPipe 모델 로딩 중...")
+            from mediapipe.tasks.python import vision
+            import urllib.request
+            import tempfile
+            
+            # 모델 파일 다운로드 경로
+            model_dir = os.path.join(os.path.dirname(__file__), "mediapipe_models")
+            os.makedirs(model_dir, exist_ok=True)
+            
+            # Pose Landmarker 모델 파일
+            pose_model_path = os.path.join(model_dir, "pose_landmarker.task")
+            if not os.path.exists(pose_model_path):
+                print("   Pose 모델 다운로드 중...")
+                pose_model_url = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
+                urllib.request.urlretrieve(pose_model_url, pose_model_path)
+            
+            # Face Landmarker 모델 파일
+            face_model_path = os.path.join(model_dir, "face_landmarker.task")
+            if not os.path.exists(face_model_path):
+                print("   Face 모델 다운로드 중...")
+                face_model_url = "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+                urllib.request.urlretrieve(face_model_url, face_model_path)
+            
+            # Pose Landmarker 초기화
+            base_options = python.BaseOptions(model_asset_path=pose_model_path)
+            options = vision.PoseLandmarkerOptions(
+                base_options=base_options,
+                output_segmentation_masks=False,
+                min_pose_detection_confidence=0.5,
+                min_pose_presence_confidence=0.5,
+                min_tracking_confidence=0.5
+            )
+            pose_landmarker = vision.PoseLandmarker.create_from_options(options)
+            
+            # Face Landmarker 초기화
+            face_base_options = python.BaseOptions(model_asset_path=face_model_path)
+            face_options = vision.FaceLandmarkerOptions(
+                base_options=face_base_options,
+                output_face_blendshapes=False,
+                output_facial_transformation_matrixes=False,
+                num_faces=1,
+                min_face_detection_confidence=0.5,
+                min_face_presence_confidence=0.5,
+                min_tracking_confidence=0.5
+            )
+            face_landmarker = vision.FaceLandmarker.create_from_options(face_options)
+            
+            print("✅ MediaPipe 모델 로딩 완료")
+        except Exception as e:
+            print(f"⚠️ MediaPipe 초기화 실패: {e}")
+            print(f"   오류 상세: {type(e).__name__}: {str(e)}")
+            MEDIAPIPE_AVAILABLE = False
+            pose_landmarker = None
+            face_landmarker = None
+    else:
+        print("⚠️ MediaPipe를 사용할 수 없어 자세/Head Pose/눈 분석이 비활성화됩니다.")
 
     print("웹캠 열기...")
     cap = cv2.VideoCapture(0)
@@ -457,7 +857,15 @@ def main():
 
     emotion_window = deque(maxlen=WINDOW_SECONDS * FRAME_FPS_ASSUMPTION)
     movement_window = deque(maxlen=WINDOW_SECONDS * FRAME_FPS_ASSUMPTION)
+    pose_window = deque(maxlen=WINDOW_SECONDS * FRAME_FPS_ASSUMPTION)
+    head_pose_window = deque(maxlen=WINDOW_SECONDS * FRAME_FPS_ASSUMPTION)
+    blink_count_window = deque(maxlen=WINDOW_SECONDS * FRAME_FPS_ASSUMPTION)
+    focus_window = deque(maxlen=WINDOW_SECONDS * FRAME_FPS_ASSUMPTION)
+    fatigue_window = deque(maxlen=WINDOW_SECONDS * FRAME_FPS_ASSUMPTION)
+    
     prev_person_boxes = []
+    prev_eye_state = None
+    frame_count = 0
     last_summary_time = time.time()
     last_post_time = time.time()
     prev_detected_objects = set()  # 이전 프레임에서 검출된 객체 추적
@@ -532,6 +940,57 @@ def main():
         movement = estimate_movement(prev_person_boxes, person_boxes)
         movement_window.append(movement)
         prev_person_boxes = person_boxes
+        
+        # MediaPipe 분석 (사람이 검출된 경우)
+        current_pose = None
+        current_head_pose = None
+        blink_count = 0
+        focus_level = 0.0
+        fatigue_level = 0.0
+        
+        if person_boxes and MEDIAPIPE_AVAILABLE and pose_landmarker and face_landmarker:
+            try:
+                # RGB로 변환 (MediaPipe는 RGB를 사용)
+                rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w = frame.shape[:2]
+                
+                # MediaPipe Image 생성
+                mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+                
+                # Pose 추정
+                pose_detection_result = pose_landmarker.detect(mp_image)
+                if pose_detection_result.pose_landmarks and len(pose_detection_result.pose_landmarks) > 0:
+                    # 첫 번째 사람의 랜드마크 사용
+                    pose_landmarks = pose_detection_result.pose_landmarks[0]
+                    current_pose = estimate_pose(pose_landmarks, h, w)
+                    if current_pose:
+                        pose_window.append(current_pose)
+                
+                # Face Mesh (Head Pose & Eye Blink)
+                face_detection_result = face_landmarker.detect(mp_image)
+                if face_detection_result.face_landmarks and len(face_detection_result.face_landmarks) > 0:
+                    # 첫 번째 얼굴의 랜드마크 사용
+                    face_landmarks = face_detection_result.face_landmarks[0]
+                    
+                    # Head Pose 추정
+                    current_head_pose = estimate_head_pose(face_landmarks, w, h)
+                    if current_head_pose:
+                        head_pose_window.append(current_head_pose)
+                    
+                    # 눈 깜빡임 및 집중도/피로도 분석
+                    blink_count, focus_level, fatigue_level, new_eye_state = analyze_eye_blink(
+                        face_landmarks, prev_eye_state, frame_count
+                    )
+                    if new_eye_state:
+                        prev_eye_state = new_eye_state
+                    if blink_count > 0:
+                        blink_count_window.append(blink_count)
+                    focus_window.append(focus_level)
+                    fatigue_window.append(fatigue_level)
+            except Exception as e:
+                print(f"MediaPipe 분석 오류: {e}")
+        
+        frame_count += 1
 
         # 화면에 정보 표시
         y_offset = 30
@@ -544,6 +1003,32 @@ def main():
             (0, 255, 255),
             2,
         )
+        
+        # 자세 정보 표시
+        if current_pose:
+            y_offset += 30
+            cv2.putText(
+                frame,
+                f"pose: {current_pose}",
+                (10, y_offset),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (255, 255, 0),
+                2,
+            )
+        
+        # 집중도/피로도 표시
+        if focus_level > 0 or fatigue_level > 0:
+            y_offset += 30
+            cv2.putText(
+                frame,
+                f"focus: {focus_level:.2f} | fatigue: {fatigue_level:.2f}",
+                (10, y_offset),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (255, 200, 0),
+                2,
+            )
         
         # 검출된 객체 목록 표시 (최대 5개)
         y_offset += 30
@@ -569,7 +1054,10 @@ def main():
         
         # WellbeingLog 전송 (주기적)
         if now - last_summary_time > SUMMARY_INTERVAL:
-            send_summary_to_server(emotion_window, movement_window)
+            send_summary_to_server(
+                emotion_window, movement_window, pose_window, head_pose_window,
+                blink_count_window, focus_window, fatigue_window, frame=frame.copy()
+            )
             last_summary_time = now
         
         # Post 게시 처리

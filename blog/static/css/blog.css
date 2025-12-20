@@ -1,8 +1,8 @@
 :root {
     --pv-bg: #0b0d10;
-    --pv-surface: #11141a;
-    --pv-card: #161b22;
-    --pv-border: #222a36;
+    --pv-surface: #1a1f2e;
+    --pv-card: #1a1f2e;
+    --pv-border: #2a3444;
     --pv-text: #e6edf3;
     --pv-text-dim: #9fb0c3;
     --pv-primary: #4aa3ff;
@@ -12,25 +12,41 @@
 html, body {
     margin: 0;
     padding: 0;
-    background: var(--pv-bg);
+    background: #0b0d10;
     color: var(--pv-text);
     font-family: 'Noto Sans KR', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
 .pv-container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 auto !important;
+    padding: 0 70px !important;
+    box-sizing: border-box !important;
+}
+
+header .pv-container,
+footer .pv-container,
+.pv-navbar .pv-container {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 70px !important;
+}
+
+.full-width-container {
     width: 100%;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 20px;
+    margin: 0;
+    padding: 0;
+    max-width: none;
 }
 
 .pv-navbar {
     position: sticky;
     top: 0;
     z-index: 10;
-    background: linear-gradient(180deg, rgba(11,13,16,0.9), rgba(11,13,16,0.6));
-    backdrop-filter: blur(6px);
+    background: #0b0d10 !important;
     border-bottom: 1px solid var(--pv-border);
+    color: var(--pv-text) !important;
 }
 
 .pv-navbar .pv-container {
@@ -38,11 +54,13 @@ html, body {
     align-items: center;
     justify-content: space-between;
     height: 64px;
+    background-color: #0b0d10 !important;
 }
 
 .pv-brand {
     font-weight: 700;
     letter-spacing: 0.3px;
+    color: var(--pv-text);
 }
 
 .pv-navlinks a {
@@ -54,6 +72,10 @@ html, body {
 
 .pv-navlinks a:hover { opacity: 1; color: var(--pv-primary); }
 
+.pv-navlinks .text-white {
+    color: var(--pv-text) !important;
+}
+
 .pv-main { padding: 32px 0 48px; }
 
 .post-grid {
@@ -63,7 +85,7 @@ html, body {
 }
 
 .post-card {
-    background: linear-gradient(180deg, var(--pv-card), var(--pv-surface));
+    /* background: linear-gradient(180deg, var(--pv-card), var(--pv-surface)); */
     border: 1px solid var(--pv-border);
     border-radius: 14px;
     overflow: hidden;
@@ -99,7 +121,18 @@ html, body {
 
 .pv-footer {
     border-top: 1px solid var(--pv-border);
-    background: var(--pv-surface);
+    background: #0b0d10;
     padding: 18px 0;
     color: var(--pv-text-dim);
+}
+
+.pv-footer-custom {
+    border-top: 1px solid var(--pv-border);
+    background: #0b0d10;
+    padding: 18px 0;
+    color: var(--pv-text-dim);
+}
+
+.pv-main-full {
+    background: #0b0d10 !important;
 }

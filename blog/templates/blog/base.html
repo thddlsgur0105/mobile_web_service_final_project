@@ -34,17 +34,24 @@
         </div>
     </header>
 
-    <main class="pv-container pv-main">
-        {% block content %}{% endblock %}
+    <main class="pv-main-full">
+        <div class="full-width-container">
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
-    <footer class="pv-footer">
+    <footer class="pv-footer-custom">
         <div class="pv-container">
             <span>© {{ now|date:"Y" }} PhotoBlog</span>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% csrf_token %}
+    <script>
+        // CSRF 토큰을 JavaScript에서 사용할 수 있도록 설정
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    </script>
 </body>
 
 </html>

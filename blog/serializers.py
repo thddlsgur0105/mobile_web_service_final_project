@@ -15,6 +15,46 @@ class WellbeingLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = WellbeingLog
         fields = '__all__'
+    
+    def to_internal_value(self, data):
+        """
+        multipart/form-data에서 JSON 필드를 문자열로 받을 때 자동으로 파싱합니다.
+        """
+        import json
+        from django.http import QueryDict
+        
+        # data를 mutable한 dict로 변환
+        if isinstance(data, QueryDict):
+            data_dict = data.dict()
+        else:
+            data_dict = dict(data) if hasattr(data, '__iter__') and not isinstance(data, str) else data
+        
+        # emotion_counts가 문자열로 오면 JSON으로 파싱
+        if 'emotion_counts' in data_dict:
+            emotion_counts_value = data_dict.get('emotion_counts')
+            if isinstance(emotion_counts_value, str):
+                try:
+                    if emotion_counts_value.strip():  # 빈 문자열이 아닐 때만 파싱
+                        data_dict['emotion_counts'] = json.loads(emotion_counts_value)
+                    else:
+                        data_dict['emotion_counts'] = {}
+                except (json.JSONDecodeError, TypeError, ValueError) as e:
+                    # 파싱 실패 시 빈 dict로 설정
+                    data_dict['emotion_counts'] = {}
+        
+        # head_pose가 문자열로 오면 JSON으로 파싱
+        if 'head_pose' in data_dict:
+            head_pose_value = data_dict.get('head_pose')
+            if isinstance(head_pose_value, str):
+                try:
+                    if head_pose_value.strip():  # 빈 문자열이 아닐 때만 파싱
+                        data_dict['head_pose'] = json.loads(head_pose_value)
+                    else:
+                        data_dict['head_pose'] = None
+                except (json.JSONDecodeError, TypeError, ValueError):
+                    data_dict['head_pose'] = None
+        
+        return super().to_internal_value(data_dict)
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
