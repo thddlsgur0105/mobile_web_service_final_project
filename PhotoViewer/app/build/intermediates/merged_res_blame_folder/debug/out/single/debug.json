@@ -1,26 +1,34 @@
 [
     {
-        "merged": "com.example.photoviewer.app-merged_res-31:/xml_file_paths.xml.flat",
-        "source": "com.example.photoviewer.app-main-33:/xml/file_paths.xml"
+        "merged": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-merged_res-31:\\layout_activity_main.xml.flat",
+        "source": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-main-33:\\layout\\activity_main.xml"
     },
     {
         "merged": "com.example.photoviewer.app-merged_res-31:/layout_activity_main.xml.flat",
         "source": "com.example.photoviewer.app-main-33:/layout/activity_main.xml"
     },
     {
-        "merged": "com.example.photoviewer.app-merged_res-31:/layout_activity_image_detail.xml.flat",
-        "source": "com.example.photoviewer.app-main-33:/layout/activity_image_detail.xml"
+        "merged": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-merged_res-31:\\layout_activity_image_detail.xml.flat",
+        "source": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-main-33:\\layout\\activity_image_detail.xml"
     },
     {
-        "merged": "com.example.photoviewer.app-merged_res-31:/xml_network_security_config.xml.flat",
-        "source": "com.example.photoviewer.app-main-33:/xml/network_security_config.xml"
+        "merged": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-merged_res-31:\\layout_item_url.xml.flat",
+        "source": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-main-33:\\layout\\item_url.xml"
     },
     {
-        "merged": "com.example.photoviewer.app-merged_res-31:/layout_item_url.xml.flat",
-        "source": "com.example.photoviewer.app-main-33:/layout/item_url.xml"
+        "merged": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-merged_res-31:\\layout_item_image.xml.flat",
+        "source": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-main-33:\\layout\\item_image.xml"
     },
     {
-        "merged": "com.example.photoviewer.app-merged_res-31:/layout_item_image.xml.flat",
-        "source": "com.example.photoviewer.app-main-33:/layout/item_image.xml"
+        "merged": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-merged_res-31:\\xml_file_paths.xml.flat",
+        "source": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-main-33:\\xml\\file_paths.xml"
+    },
+    {
+        "merged": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-merged_res-31:\\xml_network_security_config.xml.flat",
+        "source": "C:\\Users\\thddl\\.gradle\\daemon\\8.0\\com.example.photoviewer.app-main-33:\\xml\\network_security_config.xml"
+    },
+    {
+        "merged": "com.example.photoviewer.app-merged_res-31:/layout_activity_login.xml.flat",
+        "source": "com.example.photoviewer.app-main-33:/layout/activity_login.xml"
     }
 ]

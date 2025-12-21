@@ -41,7 +41,7 @@ DJANGO_BASE_URL = "http://127.0.0.1:8000"
 WELLBEING_API_URL = f"{DJANGO_BASE_URL}/api_root/WellbeingLog/"
 POST_API_URL = f"{DJANGO_BASE_URL}/api_root/Post/"
 REGISTER_API_URL = f"{DJANGO_BASE_URL}/api_root/register/"
-LOGIN_API_URL = f"{DJANGO_BASE_URL}/api-token-auth/"
+LOGIN_API_URL = f"{DJANGO_BASE_URL}/api_root/api-token-auth/"
 
 # 로그인 정보 저장 경로 (localhost)
 AUTH_INFO_FILE = os.path.join(os.path.dirname(__file__), "auth_info.json")

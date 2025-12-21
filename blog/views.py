@@ -304,7 +304,9 @@ def get_llm_response(prompt, system_prompt=None, use_openai=True):
     """
     # OpenAI API 키 확인
     api_key = getattr(settings, 'OPENAI_API_KEY', None) or os.environ.get('OPENAI_API_KEY')
-    print(api_key)
+    # API 키에서 공백 제거 (혹시 모를 공백 제거)
+    if api_key:
+        api_key = api_key.strip()
 
     if not api_key and use_openai:
         # API 키가 없으면 기본 응답 반환
@@ -341,7 +343,15 @@ def get_llm_response(prompt, system_prompt=None, use_openai=True):
                 result = response.json()
                 return result['choices'][0]['message']['content']
             else:
-                return f"LLM API 오류: {response.status_code}"
+                # 더 자세한 오류 정보 반환
+                error_detail = response.text
+                try:
+                    error_json = response.json()
+                    error_detail = error_json.get('error', {}).get('message', error_detail)
+                except:
+                    pass
+                print(f"OpenAI API 오류 ({response.status_code}): {error_detail}")
+                return f"LLM API 오류 ({response.status_code}): {error_detail[:200]}"
         else:
             # 기본 응답 (LLM 없이)
             return "LLM 서비스가 활성화되지 않았습니다."

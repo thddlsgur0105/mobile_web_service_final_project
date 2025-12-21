@@ -69,7 +69,13 @@ public class MainActivity extends AppCompatActivity {
     
     String siteUrl;
     String token = "";
+    String username = "";
     CloadImage taskDownload;
+    
+    // 인증 관련 상수
+    private static final String PREFS_NAME = "PhotoViewerPrefs";
+    private static final String KEY_TOKEN = "auth_token";
+    private static final String KEY_USERNAME = "username";
     
     // LLM API 설정 (OpenAI)
     String openaiApiKey;
@@ -90,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
     private MaterialButton urlAddButton;
     private View urlBookmarkHeader;
     private boolean isUrlBookmarkExpanded = false;
-    private static final String PREFS_NAME = "PhotoViewerPrefs";
     private static final String KEY_URL_LIST = "url_list";
     
     // 상단 영역 접기/펼치기 관련
@@ -101,11 +106,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // 🔹 로그인 상태 확인
+        loadAuthInfo();
+        if (token.isEmpty()) {
+            // 토큰이 없으면 LoginActivity로 이동
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+        
         setContentView(R.layout.activity_main);
         
         // 🔹 .env 파일에서 환경 변수 로드
         EnvConfig.loadEnv(this);
-        siteUrl = EnvConfig.get("SITE_URL", "https://thddlsgur01050331.pythonanywhere.com");
+        // 로컬 서버 기본값: 에뮬레이터는 10.0.2.2, 실제 기기는 PC의 IP 주소 사용
+        siteUrl = EnvConfig.get("SITE_URL", "172.27.144.1");
         openaiApiKey = EnvConfig.get("OPENAI_API_KEY", "");
         
         textView = findViewById(R.id.textView);
@@ -164,6 +181,53 @@ public class MainActivity extends AppCompatActivity {
 
         // 🔹 웰빙 요약 정보 불러오기
         loadWellbeingSummary();
+        
+        // 🔹 사용자명 표시 및 로그아웃 버튼 설정 (툴바에)
+        com.google.android.material.appbar.MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            if (!username.isEmpty()) {
+                toolbar.setTitle("PhotoViewer - " + username);
+            }
+            
+            // 로그아웃 버튼 설정
+            MaterialButton logoutButton = findViewById(R.id.logoutButton);
+            if (logoutButton != null) {
+                logoutButton.setOnClickListener(v -> {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("로그아웃")
+                            .setMessage("로그아웃하시겠습니까?")
+                            .setPositiveButton("로그아웃", (dialog, which) -> logout())
+                            .setNegativeButton("취소", null)
+                            .show();
+                });
+            }
+        }
+    }
+    
+    // 🔹 인증 정보 로드
+    private void loadAuthInfo() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        token = prefs.getString(KEY_TOKEN, "");
+        username = prefs.getString(KEY_USERNAME, "");
+        Log.d("MainActivity", "Auth info loaded: username=" + username + ", token=" + (token.isEmpty() ? "empty" : "exists"));
+    }
+    
+    // 🔹 로그아웃
+    private void logout() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove(KEY_TOKEN);
+        editor.remove(KEY_USERNAME);
+        editor.apply();
+        
+        token = "";
+        username = "";
+        
+        // LoginActivity로 이동
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
     
     // 🔹 상단 영역 접기/펼치기 초기화
@@ -369,6 +433,9 @@ public class MainActivity extends AppCompatActivity {
                 conn.setConnectTimeout(15000);
                 conn.setReadTimeout(15000);
                 conn.setRequestProperty("Accept", "application/json");
+                if (token != null && !token.isEmpty()) {
+                    conn.setRequestProperty("Authorization", "Token " + token);
+                }
 
                 int responseCode = conn.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {

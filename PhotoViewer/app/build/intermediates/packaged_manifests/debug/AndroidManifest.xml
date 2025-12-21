@@ -31,7 +31,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true" >
         <activity
-            android:name="com.example.photoviewer.MainActivity"
+            android:name="com.example.photoviewer.LoginActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,6 +39,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.example.photoviewer.MainActivity"
+            android:exported="false"
+            android:theme="@style/AppTheme" />
         <activity
             android:name="com.example.photoviewer.ImageDetailActivity"
             android:exported="false"

@@ -3194,6 +3194,7 @@ id east
 id edge
 id edit_query
 id elastic
+id emailEditText
 id embed
 id end
 id endToStart
@@ -3265,6 +3266,8 @@ id llmChatCard
 id llmInputText
 id llmResponseText
 id llmSendButton
+id loginButton
+id logoutButton
 id m3_side_sheet
 id marquee
 id masked
@@ -3355,6 +3358,8 @@ id parent
 id parentPanel
 id parentRelative
 id parent_matrix
+id passwordConfirmEditText
+id passwordEditText
 id password_toggle
 id path
 id pathRelative
@@ -3373,6 +3378,8 @@ id radio
 id ratio
 id rectangles
 id recyclerView
+id registerButton
+id registerSection
 id reverseSawtooth
 id right
 id rightToLeft
@@ -3492,6 +3499,7 @@ id title
 id titleDividerNoCustom
 id title_template
 id toggle
+id toggleModeButton
 id toggleTopSectionButton
 id toolbar
 id top
@@ -3519,6 +3527,7 @@ id urlDeleteButton
 id urlRecyclerView
 id urlText
 id useLogo
+id usernameEditText
 id vertical_only
 id view_offset_helper
 id view_transition
@@ -3651,6 +3660,7 @@ layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_image_detail
+layout activity_login
 layout activity_main
 layout custom_dialog
 layout design_bottom_navigation_item
@@ -3779,14 +3789,19 @@ string character_counter_content_description
 string character_counter_overflowed_content_description
 string character_counter_pattern
 string clear_text_end_icon_content_description
+string email
 string error_a11y_label
 string error_icon_content_description
 string exposed_dropdown_menu_content_description
 string fab_transformation_scrim_behavior
 string fab_transformation_sheet_behavior
+string has_account
 string hide_bottom_view_on_scroll_behavior
 string icon_content_description
 string item_view_role_description
+string login
+string login_message
+string logout
 string m3_ref_typeface_brand_medium
 string m3_ref_typeface_brand_regular
 string m3_ref_typeface_plain_medium
@@ -3886,11 +3901,15 @@ string mtrl_switch_track_decoration_path
 string mtrl_switch_track_path
 string mtrl_timepicker_cancel
 string mtrl_timepicker_confirm
+string no_account
+string password
+string password_confirm
 string password_toggle_content_description
 string path_password_eye
 string path_password_eye_mask_strike_through
 string path_password_eye_mask_visible
 string path_password_strike_through
+string register
 string search_menu_title
 string searchbar_scrolling_view_behavior
 string searchview_clear_text_content_description
@@ -3898,6 +3917,8 @@ string searchview_navigation_content_description
 string side_sheet_accessibility_pane_title
 string side_sheet_behavior
 string status_bar_notification_info_overflow
+string username
+string welcome
 style AlertDialog_AppCompat
 style AlertDialog_AppCompat_Light
 style Animation_AppCompat_Dialog

@@ -40,7 +40,7 @@ urlpatterns = [
     path('api_root/wellbeing-radar-chart/', wellbeing_radar_chart, name='wellbeing_radar_chart'),  # 웰빙 Radar Chart API
     path('api_root/cluster-analysis/', cluster_analysis, name='cluster_analysis'),  # 클러스터 분석 API
     path('api_root/key-images-selection/', key_images_selection, name='key_images_selection'),  # 핵심 이미지 선정 API
-    path('api-token-auth/', obtain_auth_token, name='api_login'),  # 로그인 API
+    path('api_root/api-token-auth/', obtain_auth_token, name='api_login'),  # 로그인 API
 ]
 
 
